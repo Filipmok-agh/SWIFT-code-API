@@ -214,5 +214,8 @@ app.delete('/v1/swift-codes/:swiftCode', async (req: Request, res: Response) => 
     return res.status(500).json({ message: 'Error' });
   }
 });
-
+const PORT =8080;
+app.listen(PORT, () => {
+  console.log(`Serwer działa na http://localhost:${PORT}`);
+});
 export default app;
