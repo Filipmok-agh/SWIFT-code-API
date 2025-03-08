@@ -25,7 +25,7 @@ This project provides a REST API for managing SWIFT (BIC) codes for banks and th
 
 To run the application and tests in Docker, follow these steps:
 
-1. **Install Docker**:  
+1. **Open Docker**:  
    If you don't have Docker installed, download it from the [official website](https://www.docker.com/products/docker-desktop/).
 
 2. **Clone the repository**:
@@ -57,14 +57,16 @@ To run the application and tests in Docker, follow these steps:
 
 ## Postman
 
-1. **Install Postman**:  
+1. **Open Postman**:  
    If you don't have Postman, download it from the [official website](https://www.postman.com/).
 
 2. **Import the [Postman Collection](./Collection.json)**.
 
-3. **Try different endpoints using the prepared examples**.
+3. **Run the application using Docker** 
 
-4. **Create your own examples** to test additional use cases.
+4. **Try different endpoints using the prepared examples**.
+
+5. **Create your own examples** to test additional use cases.
 
 ---
 
