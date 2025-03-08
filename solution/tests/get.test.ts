@@ -4,11 +4,26 @@ import SwiftCode from '../src/models/SwiftCode';
 
 jest.mock('../src/models/SwiftCode');
 
-describe('SWIFT Codes API, "GET"', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+let server: any;
+let baseURL: string;
 
+beforeAll((done) => {
+  server = app.listen(0, () => {
+    const address = server.address();
+    baseURL = `http://localhost:${address.port}`;
+    done();
+  });
+});
+
+afterAll((done) => {
+  server.close(done);
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('SWIFT Codes API, "GET"', () => {
   describe('GET /v1/swift-codes/:swiftCode', () => {
     it('should return SWIFT code details without branches', async () => {
       (SwiftCode.findOne as jest.Mock).mockResolvedValue({
@@ -16,11 +31,11 @@ describe('SWIFT Codes API, "GET"', () => {
         bankName: 'Test Bank',
         countryISO2: 'TS',
         countryName: 'TEST',
-        isHeadquarter: false,
+        isHeadquarter: true,
         swiftCode: 'XXXXXXXX',
       });
 
-      const res = await request(app).get('/v1/swift-codes/TESTUS33');
+      const res = await request(baseURL).get('/v1/swift-codes/TESTUS33');
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -28,7 +43,7 @@ describe('SWIFT Codes API, "GET"', () => {
         bankName: 'Test Bank',
         countryISO2: 'TS',
         countryName: 'TEST',
-        isHeadquarter: false,
+        isHeadquarter: true,
         swiftCode: 'XXXXXXXX',
       });
     });
@@ -60,7 +75,7 @@ describe('SWIFT Codes API, "GET"', () => {
         },
       ]);
   
-      const res = await request(app).get('/v1/swift-codes/SWIFTTESTXXX');
+      const res = await request(baseURL).get('/v1/swift-codes/SWIFTTESTXXX');
   
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -87,13 +102,12 @@ describe('SWIFT Codes API, "GET"', () => {
           },
         ],
       });
-  });
-  
+    });
 
     it('should return 404 if SWIFT code not found', async () => {
       (SwiftCode.findOne as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/v1/swift-codes/NONEXIST33');
+      const res = await request(baseURL).get('/v1/swift-codes/NONEXIST33');
 
       expect(res.status).toBe(404);
       expect(res.body.message).toBe('SWIFT code not found');
@@ -121,7 +135,7 @@ describe('SWIFT Codes API, "GET"', () => {
         },
       ]);
     
-      const res = await request(app).get('/v1/swift-codes/country/PL');
+      const res = await request(baseURL).get('/v1/swift-codes/country/PL');
     
       expect(res.status).toBe(200);
     

@@ -42,19 +42,18 @@ async function importCSVData(filePath: string) {
 
           if (!existingSwiftCode) {
             await SwiftCode.create(swiftCode);
-            console.log(`Dodano: ${swiftCode.swiftCode}`);
           } else {
-            console.log(`Rekord z ${swiftCode.swiftCode} już istnieje, pominięto.`);
+            console.log(`${swiftCode.swiftCode} already exist`);
           }
         }
-        console.log('Dane zostały zaimportowane do bazy!');
+        console.log('Data imported');
       } catch (error) {
-        console.error('Błąd podczas importowania danych:', error);
+        console.error('Data import error: ', error);
       }
     });
 }
 
-
+// importing data
 // importCSVData('./src/data.csv');
 
 
@@ -62,41 +61,41 @@ async function importCSVData(filePath: string) {
 
 
 
-app.get('/v1/swift-codes/:swiftCode', async (req:Request, res:Response) => { 
+app.get('/v1/swift-codes/:swiftCode', async (req: Request, res: Response) => { 
   const { swiftCode } = req.params;
-  
+
   try {
     const row = await SwiftCode.findOne({
       where: { swiftCode },
-    })
+    });
 
-    if(row)
-    {
-      if(row.isHeadquarter)
-      {
+    if (row) {
+      if (row.isHeadquarter) {
         const branches = await SwiftCode.findAll({
           where: { swiftCode: { [Op.like]: `${swiftCode.slice(0, 8)}%` } },
         });
-  
-        const response = {
+
+        const response: any = {
           address: row.address,
           bankName: row.bankName,
           countryISO2: row.countryISO2,
           countryName: row.countryName,
           isHeadquarter: true,
           swiftCode: row.swiftCode,
-          branches: branches.map((branch: any) => ({
+        };
+
+        if (branches && branches.length > 0) {
+          response.branches = branches.map((branch: any) => ({
             address: branch.address,
             bankName: branch.bankName,
             countryISO2: branch.countryISO2,
             isHeadquarter: false,
             swiftCode: branch.swiftCode,
-          })),
-        };
+          }));
+        }
+
         return res.json(response);
-      }
-      else
-      {
+      } else {
         const response = {
           address: row.address,
           bankName: row.bankName,
@@ -107,14 +106,16 @@ app.get('/v1/swift-codes/:swiftCode', async (req:Request, res:Response) => {
         };
         return res.json(response);
       }
+    } else {
+      return res.status(404).json({ message: 'SWIFT code not found' });
     }
-    else  return res.status(404).json({ message: 'SWIFT code not found' });
-    
   } catch (error) {
     console.error('Error fetching SWIFT code details:', error);
     return res.status(500).json({ message: 'Error' });
   }
 });
+
+
 
 app.get('/v1/swift-codes/country/:countryISO2code', async (req: Request, res: Response) => {
   const { countryISO2code } = req.params;
@@ -214,8 +215,11 @@ app.delete('/v1/swift-codes/:swiftCode', async (req: Request, res: Response) => 
     return res.status(500).json({ message: 'Error' });
   }
 });
-const PORT =8080;
-app.listen(PORT, () => {
-  console.log(`Serwer działa na http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 8080;
+
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
 export default app;
